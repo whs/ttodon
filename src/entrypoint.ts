@@ -1,1 +1,1 @@
-import "./components/t-app.ts"
+import './components/t-app.ts';

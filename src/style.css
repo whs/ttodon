@@ -1,19 +1,19 @@
 body {
-    padding: 0;
-    margin: 0;
-    cursor: default;
-    background: var(--background-color);
-    overflow: hidden;
-    color: #e9e8e7;
-    font: 10pt var(--font-family);
+	padding: 0;
+	margin: 0;
+	cursor: default;
+	background: var(--background-color);
+	overflow: hidden;
+	color: #e9e8e7;
+	font: 10pt var(--font-family);
 
-    --font-family: Verdana, Tahoma, sans-serif;
-    --background-color: #353433;
-    --text-color: #e9e8e7;
-    --text-highlight-color: #d7fc70;
+	--font-family: Verdana, Tahoma, sans-serif;
+	--background-color: #353433;
+	--text-color: #e9e8e7;
+	--text-highlight-color: #d7fc70;
 }
 
 /* storybook */
 body.sb-show-main {
-    overflow: auto;
+	overflow: auto;
 }

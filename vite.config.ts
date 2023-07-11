@@ -1,8 +1,8 @@
-import {defineConfig} from 'vite'
-import sri from '@small-tech/vite-plugin-sri'
-import minifyHTML from 'rollup-plugin-minify-html-literals'
-import license from "rollup-plugin-license";
-import * as path from "path";
+import { defineConfig } from 'vite';
+import sri from '@small-tech/vite-plugin-sri';
+import minifyHTML from 'rollup-plugin-minify-html-literals';
+import license from 'rollup-plugin-license';
+import * as path from 'path';
 
 export default defineConfig({
 	plugins: [sri()],
@@ -17,10 +17,15 @@ export default defineConfig({
 				(minifyHTML as any).default(),
 				license({
 					thirdParty: {
-						output: path.join(__dirname, 'dist', 'assets', 'vendor.LICENSE.txt'),
+						output: path.join(
+							__dirname,
+							'dist',
+							'assets',
+							'vendor.LICENSE.txt'
+						),
 					},
 				}),
 			],
 		},
-	}
-})
+	},
+});

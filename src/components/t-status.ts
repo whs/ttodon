@@ -1,75 +1,95 @@
-import {css, html, LitElement} from "lit";
-import {customElement, property} from "lit/decorators.js";
-import {ASObject} from "../activitypub/types.ts";
+import { css, html, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { MastodonStatus } from '../api/mastodon/types.ts';
 // TODO: Don't use this!!!
-import {unsafeHTML} from 'lit/directives/unsafe-html.js';
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 
 /**
  * Ported from Item class
  */
-@customElement("t-status")
+@customElement('t-status')
 export default class Status extends LitElement {
 	@property()
-	object!: ASObject;
+	object!: MastodonStatus;
+
+	@property({ type: Boolean, reflect: true })
+	selected!: boolean;
 
 	static styles = css`
-      .status {
-        display: flex;
-        padding: 3px 20px;
-      }
+		:host {
+			display: block;
+		}
 
-      .avatar {
-        width: 24px;
-        height: 24px;
-        margin: 4px 0;
-        background: #000;
-        border: 1px solid #666666;
-        cursor: pointer;
-      }
+		.status {
+			display: flex;
+			padding: 3px 20px;
+		}
 
-      .content {
-        margin-left: 16px;
-        min-height: 34px;
-      }
+		:host([selected]) .status {
+			background: #898785;
+		}
 
-      .username {
-        color: #bef;
-        font-weight: bold;
-		text-decoration: underline;
-	  }
+		.avatar {
+			width: 24px;
+			height: 24px;
+			margin: 4px 0;
+			background: #000;
+			border: 1px solid #666666;
+			cursor: pointer;
+		}
 
-      .meta {
-        color: #707172;
-        font-size: 0.8em;
-      }
-	  
-	  .text {
-		word-wrap: break-word;
-	  }
-	  
-	  .text p { /* TODO: Remove */
-		display: inline;
-	  }
+		.content {
+			margin-left: 16px;
+			min-height: 34px;
+		}
+
+		.username {
+			color: #bef;
+			font-weight: bold;
+			text-decoration: underline;
+		}
+
+		.meta {
+			color: #707172;
+			font-size: 0.8em;
+		}
+
+		:host([selected]) .meta {
+			color: #000;
+		}
+
+		.text {
+			word-wrap: break-word;
+		}
+
+		.text p {
+			/* TODO: Remove */
+			display: inline;
+		}
 	`;
 
 	render() {
-		// TODO: status-mention status-faved status-filtered status-highed status-selected
+		// TODO: status-mention status-faved status-filtered status-highed
 		// TODO: Don't use unsafeHTML
+		// TODO: Acct should show @ part in small text
+		// TODO: Handle meta
 		return html`
-            <div class="status">
-                <img class="avatar" src="https://picsum.photos/200/200">
-                <div class="content">
-                    <span class="username">awkwin</span>
-                    <span class="text">${unsafeHTML(this.object.content)}</span>
-                    <span class="meta">meta<slot name="metadata"></slot></span>
-                </div>
-            </div>
+			<div class="status">
+				<img class="avatar" src="${this.object.account.avatar}" />
+				<div class="content">
+					<span class="username" title="${this.object.account.display_name}"
+						>${this.object.account.acct}</span
+					>
+					<span class="text">${unsafeHTML(this.object.content)}</span>
+					<span class="meta">meta<slot name="metadata"></slot></span>
+				</div>
+			</div>
 		`;
 	}
 }
 
 declare global {
 	interface HTMLElementTagNameMap {
-		"t-status": Status;
+		't-status': Status;
 	}
 }

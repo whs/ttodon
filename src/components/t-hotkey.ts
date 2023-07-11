@@ -1,7 +1,7 @@
-import {css, html, LitElement} from "lit";
-import {customElement, property} from "lit/decorators.js";
+import { css, html, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
 
-@customElement("t-hotkey")
+@customElement('t-hotkey')
 export class Hotkey extends LitElement {
 	/**
 	 * Letter to highlight as hotkey
@@ -13,28 +13,29 @@ export class Hotkey extends LitElement {
 	 * Index in the textContent to highlight hotkey. Default to the first occurence of hotkey letter
 	 * May cause undefined behavior if incorrect value is used.
 	 */
-	@property({type: Number})
+	@property({ type: Number })
 	hotkeyIndex: number | undefined = undefined;
 
 	static styles = css`
-      .hotkey {
-        color: var(--text-highlight-color);
-        text-decoration: underline;
-      }
+		.hotkey {
+			color: var(--text-highlight-color);
+			text-decoration: underline;
+		}
 
-      .hotkey-alt {
-        color: #d770fc;
-        text-decoration: underline;
-      }
+		.hotkey-alt {
+			color: #d770fc;
+			text-decoration: underline;
+		}
 	`;
 
 	render() {
 		if (!this.hotkey || !this.textContent) {
-			return this.passthrough()
+			return this.passthrough();
 		}
-		let hotkeyPosition = this.hotkeyIndex || this.textContent.search(new RegExp(this.hotkey, "i"));
+		let hotkeyPosition =
+			this.hotkeyIndex || this.textContent.search(new RegExp(this.hotkey, 'i'));
 		if (hotkeyPosition === -1) {
-			return this.passthrough()
+			return this.passthrough();
 		}
 		let before = this.textContent.substring(0, hotkeyPosition);
 		let hotkey = this.textContent[hotkeyPosition];
@@ -45,13 +46,12 @@ export class Hotkey extends LitElement {
 	}
 
 	private passthrough() {
-		return html`
-            <slot></slot>`;
+		return html` <slot></slot>`;
 	}
 }
 
 declare global {
 	interface HTMLElementTagNameMap {
-		"t-hotkey": Hotkey,
+		't-hotkey': Hotkey;
 	}
 }
