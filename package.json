@@ -9,7 +9,8 @@
 		"preview": "vite preview",
 		"storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook dev -p 6006",
 		"build-storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook build",
-		"prettier": "prettier -w ."
+		"prettier": "prettier -w .",
+		"deploy-storybook": "wrangler pages deploy storybook-static --project-name ttodon --branch storybook"
 	},
 	"dependencies": {
 		"dayjs": "^1.11.9",
@@ -31,6 +32,7 @@
 		"rollup-plugin-minify-html-literals": "^1.2.6",
 		"storybook": "^7.0.26",
 		"typescript": "^5.0.2",
-		"vite": "^4.4.0"
+		"vite": "^4.4.0",
+		"wrangler": "^3.1.2"
 	}
 }

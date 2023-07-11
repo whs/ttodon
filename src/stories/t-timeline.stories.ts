@@ -99,7 +99,7 @@ for (let i = 0; i < 10000; i++) {
 @customElement('storybook-timeline-in-container')
 class TimelineInContainer extends LitElement {
 	@property()
-	args!: Partial<TTimeline> & { height: number };
+	args!: Partial<TTimeline> & { height: number; scrollable: boolean };
 
 	containerRef = createRef<HTMLDivElement>();
 
@@ -109,7 +109,7 @@ class TimelineInContainer extends LitElement {
 					border: #232425 solid 1px;
 					width: 400px;
 					height: ${this.args.height}px;
-					overflow: auto;
+					overflow: ${this.args.scrollable ? 'auto' : 'hidden'};
 				}
 			</style>
 			<div class="container" ${ref(this.containerRef)}>
@@ -142,6 +142,7 @@ export const InContainer: StoryObj<TTimeline & TimelineInContainer> = {
 		></storybook-timeline-in-container>`,
 	args: {
 		height: 400,
+		scrollable: false,
 	} as any,
 	argTypes: {
 		height: { control: { type: 'range', min: 150, max: 1000 } },
@@ -151,6 +152,9 @@ export const InContainer: StoryObj<TTimeline & TimelineInContainer> = {
 				min: 0,
 				max: 10000 - 1,
 			},
+		},
+		scrollable: {
+			control: { type: 'boolean' },
 		},
 	} as any,
 	parameters: {

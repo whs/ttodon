@@ -5,7 +5,7 @@ import license from 'rollup-plugin-license';
 import * as path from 'path';
 
 export default defineConfig({
-	plugins: [sri()],
+	// plugins: [sri()],
 	esbuild: {
 		banner: '/*! Third party license: vendor.LICENSE.txt */',
 		legalComments: 'none',
