@@ -28,7 +28,7 @@ export default class UserInfo extends LitElement {
 			background: #252423;
 			text-align: center;
 			font-size: 9pt;
-			padding: 3px 6px 5px;
+			padding: 3px 6px 0;
 		}
 
 		.about-text {

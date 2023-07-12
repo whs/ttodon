@@ -83,16 +83,12 @@ export default class Timeline extends LitElement implements ScrollableHost {
 		let statuses = this.statuses;
 		if (oldValue !== undefined) {
 			let oldSelected = statuses[oldValue];
-			if (oldSelected.hasAttribute('selected')) {
-				oldSelected.removeAttribute('selected');
-			}
+			oldSelected?.removeAttribute('selected');
 		}
 
 		if (newValue !== undefined) {
 			let newSelected = statuses[newValue];
-			if (newSelected) {
-				newSelected.setAttribute('selected', 'true');
-			}
+			newSelected?.setAttribute('selected', 'true');
 		}
 	}
 

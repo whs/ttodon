@@ -5,9 +5,8 @@ import './t-head';
 import './t-hotkey';
 import './t-button';
 import './t-timeline';
-import './t-status';
 import './t-message-bar';
-import HeaderBar from './t-head.ts';
+import type HeaderBar from './t-head.ts';
 
 /**
  * Main UI
@@ -73,7 +72,7 @@ export default class App extends LitElement {
 				bottompad="${this.bottomBar.value?.offsetHeight || 45}"
 			>
 				<div class="welcome" slot="header">
-					<strong>thaiWitter</strong> [Version 3.0.10*]
+					<strong>${__APP_NAME__}</strong> [Version ${__APP_VERSION__}]
 				</div>
 			</t-timeline>
 			<div class="message-bar" ${ref(this.bottomBar)}}>
