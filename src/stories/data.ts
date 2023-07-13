@@ -1,6 +1,6 @@
 import { MastodonStatus } from '../api/mastodon/types';
 import { interval, map } from 'rxjs';
-import { cloneDeep } from 'lodash';
+
 export const status: MastodonStatus = {
 	id: '110690069764638362',
 	created_at: '2023-07-10T13:40:25.869Z',
@@ -91,7 +91,7 @@ export const status: MastodonStatus = {
 export const mockStatusStream = (every: number) =>
 	interval(every).pipe(
 		map((id) => {
-			let outputStatus = cloneDeep(status);
+			let outputStatus = JSON.parse(JSON.stringify(status)) as MastodonStatus;
 			outputStatus.id = id.toString();
 			return {
 				event: 'update' as const,

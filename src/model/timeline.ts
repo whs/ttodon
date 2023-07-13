@@ -12,7 +12,7 @@ import {
 	MastodonStatus,
 	ParsedStreamEvent,
 } from '../api/mastodon/types';
-import { findLastIndex, remove } from 'lodash';
+import { findLastIndex, remove } from 'lodash-es';
 
 export const BATCH_UPDATE_EVENT: unique symbol = Symbol('batch_update');
 
