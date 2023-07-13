@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
 import '../components/t-status';
 import type TStatus from '../components/t-status';
-import { status } from './data.ts';
+import { status } from './data';
 
 const meta = {
 	title: 'Component/t-status',

@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, property } from 'lit/decorators.js';
+import { createRef, ref } from 'lit/directives/ref.js';
 
 /**
  * Message bar
@@ -7,6 +8,12 @@ import { customElement } from 'lit/decorators.js';
  */
 @customElement('t-message-bar')
 export default class MessageBar extends LitElement {
+	@property({ type: Boolean })
+	autofocus: boolean = false;
+
+	@property({ type: String })
+	value: String = '';
+
 	static styles = css`
 		:host {
 			display: block;
@@ -33,8 +40,31 @@ export default class MessageBar extends LitElement {
 		}
 	`;
 
+	protected inputRef = createRef<HTMLTextAreaElement>();
+
+	focus() {
+		this.inputRef.value!.focus();
+	}
+
 	render() {
-		return html` <textarea cols="100" rows="2" autofocus></textarea> `;
+		return html`<textarea
+			cols="100"
+			rows="2"
+			autocomplete="off"
+			value=${this.value}
+			@input=${this.onInput}
+			${ref(this.inputRef)}
+		></textarea>`;
+	}
+
+	protected firstUpdated() {
+		if (this.autofocus) {
+			this.focus();
+		}
+	}
+
+	private onInput(e: InputEvent) {
+		this.value = (e.target! as HTMLTextAreaElement).value;
 	}
 }
 

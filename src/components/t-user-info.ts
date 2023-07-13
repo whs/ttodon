@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
-import './t-button.ts';
+import './t-button';
 
 @customElement('t-user-info')
 export default class UserInfo extends LitElement {

@@ -141,3 +141,43 @@ export interface PreviewCard {
 	embed_url: string;
 	blurhash: string | null;
 }
+
+type StreamCategory =
+	| 'public'
+	| 'public:media'
+	| 'public:local'
+	| 'public:local:media'
+	| 'public:remote'
+	| 'public:remote:media'
+	| 'hashtag'
+	| 'hashtag:local'
+	| 'user'
+	| 'user:notification'
+	| 'list'
+	| 'direct';
+
+export interface StreamEvent {
+	stream?: StreamCategory[];
+	event: keyof StreamEventMap | string;
+	data: string;
+}
+
+export interface StreamEventMap {
+	update: MastodonStatus;
+	delete: string;
+	'status.update': MastodonStatus;
+}
+
+export interface ParsedStreamEvent<
+	T extends keyof StreamEventMap = keyof StreamEventMap,
+> {
+	event: T;
+	data: StreamEventMap[T];
+}
+
+export function isEventType<T extends keyof StreamEventMap>(
+	e: ParsedStreamEvent<any>,
+	type: T
+): e is ParsedStreamEvent<T> {
+	return e.event === type;
+}

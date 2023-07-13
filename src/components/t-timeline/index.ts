@@ -6,7 +6,7 @@ import { createRef, ref } from 'lit/directives/ref.js';
 import ScrollController, {
 	Scrollable,
 	ScrollableHost,
-} from './scrollcontroller.ts';
+} from './scrollcontroller';
 
 /**
  * Timeline component
@@ -50,6 +50,7 @@ export default class Timeline extends LitElement implements ScrollableHost {
 	@queryAssignedElements()
 	statuses!: HTMLElement[];
 
+	statusSlot = createRef<HTMLSlotElement>();
 	statusContainer = createRef<HTMLDivElement>();
 
 	render() {
@@ -58,7 +59,11 @@ export default class Timeline extends LitElement implements ScrollableHost {
 				<slot name="header"></slot>
 			</div>
 			<div class="statuses" ${ref(this.statusContainer)}>
-				<slot @slotchange=${this.handleStatusChange}></slot>
+				<slot
+					${ref(this.statusSlot)}
+					@click=${this.onStatusClicked}
+					@slotchange=${this.handleStatusChange}
+				></slot>
 			</div>
 			<div class="footer">
 				<slot name="footer"></slot>
@@ -107,6 +112,37 @@ export default class Timeline extends LitElement implements ScrollableHost {
 
 		this.itemCount = statuses.length;
 	}
+
+	protected onStatusClicked = (e: MouseEvent) => {
+		let statusNode = e.target as HTMLElement | null;
+		while (
+			statusNode !== null &&
+			!(statusNode.parentNode != this.statusSlot.value)
+		) {
+			statusNode = statusNode.parentElement;
+		}
+		if (!statusNode) {
+			console.warn('event target is not in status slot');
+			return;
+		}
+
+		let index = this.statuses.indexOf(statusNode);
+		if (index === -1) {
+			console.warn("can't find child in status list");
+			return;
+		}
+
+		const event = new CustomEvent('select', {
+			bubbles: true,
+			composed: true,
+			detail: index,
+		});
+		let allowDefault = this.dispatchEvent(event);
+
+		if (allowDefault) {
+			this.selected = index;
+		}
+	};
 
 	scrollSelectedIntoView() {
 		if (this.selected === undefined) {

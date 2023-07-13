@@ -1,1 +1,1 @@
-import './components/t-app.ts';
+import './smart-component/t-app';

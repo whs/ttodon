@@ -3,7 +3,7 @@ import { html, LitElement } from 'lit';
 import '../components/t-timeline';
 import '../components/t-user-info';
 import type TTimeline from '../components/t-timeline';
-import { status } from './data.ts';
+import { status } from './data';
 import { createRef, ref } from 'lit/directives/ref.js';
 import { customElement, property } from 'lit/decorators.js';
 import { repeat } from 'lit/directives/repeat.js';

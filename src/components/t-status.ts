@@ -1,6 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { MastodonStatus } from '../api/mastodon/types.ts';
+import { MastodonStatus } from '../api/mastodon/types';
 // TODO: Don't use this!!!
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 

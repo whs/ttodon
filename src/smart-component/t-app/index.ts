@@ -1,12 +1,17 @@
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
 import { ref, createRef } from 'lit/directives/ref.js';
-import './t-head';
-import './t-hotkey';
-import './t-button';
-import './t-timeline';
-import './t-message-bar';
-import type HeaderBar from './t-head.ts';
+import '../../components/t-head';
+import '../../components/t-hotkey';
+import '../../components/t-button';
+import '../../components/t-timeline';
+import '../../components/t-status';
+import '../../components/t-message-bar';
+import type HeaderBar from '../../components/t-head';
+import type MessageBar from '../../components/t-message-bar';
+import type Timeline from '../../components/t-timeline';
+import { repeat } from 'lit/directives/repeat.js';
+import TimelineController from './timelinecontroller';
 
 /**
  * Main UI
@@ -42,8 +47,12 @@ export default class App extends LitElement {
 		}
 	`;
 
+	timelineController = new TimelineController(this);
+
 	head = createRef<HeaderBar>();
 	bottomBar = createRef<HTMLDivElement>();
+	messageBar = createRef<MessageBar>();
+	timelineComponent = createRef<Timeline>();
 
 	render() {
 		return html`
@@ -63,20 +72,38 @@ export default class App extends LitElement {
 					</t-button>
 					<t-button> ▼ </t-button>
 
-					<t-menu-item slot="right" title="Position">0 / 100</t-menu-item>
-					<t-menu-item slot="right" title="Status Text Limit">140</t-menu-item>
+					<t-menu-item slot="right" title="Position"
+						>${this.timelineComponent.value?.selected !== undefined
+							? this.timelineComponent.value.selected + 1
+							: 0}
+						/ ${this.timelineController.currentTimeline.length}</t-menu-item
+					>
+					<t-menu-item slot="right" title="Status Text Limit"
+						>${this.getStatusTextLeft()}</t-menu-item
+					>
 				</t-head>
 			</div>
 			<t-timeline
 				toppad="${this.head.value?.offsetHeight || 25}"
 				bottompad="${this.bottomBar.value?.offsetHeight || 45}"
+				@select=${() => this.requestUpdate()}
+				${ref(this.timelineComponent)}
 			>
 				<div class="welcome" slot="header">
 					<strong>${__APP_NAME__}</strong> [Version ${__APP_VERSION__}]
 				</div>
+				${repeat(
+					this.timelineController.currentTimeline,
+					(item) => item.value.id,
+					(item) => html`<t-status .object=${item.value}></t-status>`
+				)}
 			</t-timeline>
 			<div class="message-bar" ${ref(this.bottomBar)}}>
-				<t-message-bar></t-message-bar>
+				<t-message-bar
+					@input=${() => this.requestUpdate()}
+					autofocus
+					${ref(this.messageBar)}}
+				></t-message-bar>
 			</div>
 		`;
 	}
@@ -99,6 +126,12 @@ export default class App extends LitElement {
 	private onResize = () => {
 		this.requestUpdate();
 	};
+
+	getStatusTextLeft() {
+		let enteredText = this.messageBar.value?.value || '';
+
+		return 140 - enteredText.length;
+	}
 }
 
 declare global {
