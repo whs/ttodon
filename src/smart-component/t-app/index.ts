@@ -112,6 +112,7 @@ export default class App extends LitElement {
 				toppad="${this.head.value?.offsetHeight || 25}"
 				bottompad="${this.bottomBar.value?.offsetHeight || 45}"
 				@select=${() => this.requestUpdate()}
+				@replyclick=${this.onReplyClick}
 				${ref(this.timelineComponent)}
 			>
 				<div class="welcome" slot="header">
@@ -156,6 +157,22 @@ export default class App extends LitElement {
 	}
 
 	private onResize = () => {
+		this.requestUpdate();
+	};
+
+	private onReplyClick = (e: CustomEvent) => {
+		e.stopPropagation();
+
+		let statusId = e.detail as string;
+		let statusIndex = this.timelineController.currentTimeline.findIndex(
+			(needle) => needle.value.id === statusId
+		);
+		if (statusIndex === -1) {
+			console.error(`Cannot find status ${statusId}`);
+			return;
+		}
+
+		this.timelineComponent.value!.selected = statusIndex;
 		this.requestUpdate();
 	};
 

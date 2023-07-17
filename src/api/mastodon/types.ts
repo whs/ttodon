@@ -17,6 +17,7 @@ export interface MastodonStatus {
 	replies_count: number;
 	url: string | null;
 	in_reply_to_id: string | null;
+	in_reply_to_account_id: string | null;
 	reblog: MastodonStatus | null;
 	poll: Poll | null;
 	card: PreviewCard | null;

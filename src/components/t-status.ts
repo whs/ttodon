@@ -3,6 +3,10 @@ import { customElement, property } from 'lit/decorators.js';
 import { MastodonStatus } from '../api/mastodon/types';
 // TODO: Don't use this!!!
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+
+dayjs.extend(utc);
 
 /**
  * Ported from Item class
@@ -14,6 +18,12 @@ export default class Status extends LitElement {
 
 	@property({ type: Boolean, reflect: true })
 	selected!: boolean;
+
+	@property({ type: String })
+	sameDayDateFormat = 'H:mm:ss';
+
+	@property({ type: String })
+	differentDayDateFormat = `YYYY-MM-DD ${this.sameDayDateFormat}`;
 
 	static styles = css`
 		:host {
@@ -54,6 +64,11 @@ export default class Status extends LitElement {
 			font-size: 0.8em;
 		}
 
+		.meta a {
+			color: inherit;
+			text-decoration: none;
+		}
+
 		:host([selected]) .meta {
 			color: #000;
 		}
@@ -74,11 +89,21 @@ export default class Status extends LitElement {
 		}
 	`;
 
+	getCreatedDate() {
+		return dayjs(this.object.created_at).local();
+	}
+
+	getDateFormat(date: dayjs.Dayjs) {
+		if (date.format('YYYY-MM-DD') === dayjs().local().format('YYYY-MM-DD')) {
+			return this.sameDayDateFormat;
+		}
+		return this.differentDayDateFormat;
+	}
+
 	render() {
 		// TODO: status-mention status-faved status-filtered status-highed
-		// TODO: Don't use unsafeHTML
 		// TODO: Acct should show @ part in small text
-		// TODO: Handle meta
+
 		return html`
 			<div class="status">
 				<img class="avatar" src="${this.object.account.avatar}" />
@@ -86,12 +111,74 @@ export default class Status extends LitElement {
 					<span class="username" title="${this.object.account.display_name}"
 						>${this.object.account.acct}</span
 					>
-					<span class="text">${unsafeHTML(this.object.content)}</span>
-					<span class="meta">meta<slot name="metadata"></slot></span>
+					<span class="text">${this.renderText()}</span>
+					<span class="meta">
+						${this.object.reblog ? html`(rt) ` : null}
+						<a target="_blank" href="${this.object.url || this.object.uri}"
+							>${this.getCreatedDate().format(
+								this.getDateFormat(this.getCreatedDate())
+							)}</a
+						>
+						${this.object.application &&
+						(this.object.application.website
+							? html` from
+									<a target="_blank" href="${this.object.application.website}"
+										>${this.object.application.name}</a
+									>`
+							: ` from ${this.object.application.name}`)}
+						${this.object.in_reply_to_id &&
+						html`<a href="#" @click=${this.onReplyClick}>
+							&raquo; ${this.getInReplyToUsername()}</a
+						>`}
+						<slot name="metadata"></slot>
+					</span>
 				</div>
 			</div>
 		`;
 	}
+
+	protected renderText(status = this.object): any {
+		// TODO: Don't use unsafeHTML
+
+		if (status.reblog) {
+			return html`RB ${status.reblog.account.acct}:
+			${this.renderText(status.reblog)}`;
+		}
+
+		return unsafeHTML(status.content);
+	}
+
+	protected getInReplyToUsername() {
+		if (!this.object.in_reply_to_account_id) {
+			return null;
+		}
+
+		if (this.object.in_reply_to_account_id === this.object.account.id) {
+			return this.object.account.acct;
+		}
+
+		if (this.object.mentions?.length > 0) {
+			for (let mentions of this.object.mentions) {
+				if (mentions.id === this.object.in_reply_to_account_id) {
+					return mentions.acct;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	private onReplyClick = (e: MouseEvent) => {
+		e.preventDefault();
+		e.stopPropagation();
+
+		const event = new CustomEvent('replyclick', {
+			bubbles: true,
+			composed: true,
+			detail: this.object.in_reply_to_id,
+		});
+		this.dispatchEvent(event);
+	};
 }
 
 declare global {
