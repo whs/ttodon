@@ -15,10 +15,12 @@
 		"deploy-storybook": "wrangler pages deploy storybook-static --project-name ttodon --branch storybook"
 	},
 	"dependencies": {
+		"@open-wc/lit-helpers": "^0.6.0",
+		"axios": "^1.4.0",
 		"dayjs": "^1.11.9",
 		"immer": "^10.0.2",
 		"lit": "^2.7.5",
-		"lodash-es": "^4.17.21",
+		"remeda": "^1.24.0",
 		"rxjs": "^7.8.1",
 		"ts-jest": "^29.1.1"
 	},

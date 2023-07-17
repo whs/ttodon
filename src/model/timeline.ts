@@ -12,7 +12,7 @@ import {
 	MastodonStatus,
 	ParsedStreamEvent,
 } from '../api/mastodon/types';
-import { findLastIndex, remove } from 'lodash-es';
+import { partition, findLastIndex } from 'remeda';
 
 export const BATCH_UPDATE_EVENT: unique symbol = Symbol('batch_update');
 
@@ -86,6 +86,10 @@ export class Timeline {
 
 			if (e.event === BATCH_UPDATE_EVENT) {
 				for (let item of e.data) {
+					if (!item.content) {
+						continue;
+					}
+
 					freeze(item);
 					draft.push(new BehaviorSubject(item));
 				}
@@ -104,11 +108,16 @@ export class Timeline {
 				draft[index].next(data);
 			} else if (isEventType(e, 'delete')) {
 				let statusId = e.data;
-				let removed = remove(draft, (needle) => needle.value.id === statusId);
+				let [removed, rest] = partition(
+					accumulator,
+					(needle) => needle.value.id === statusId
+				);
 
 				for (let item of removed) {
 					item.complete();
 				}
+
+				return rest;
 			}
 		});
 	}

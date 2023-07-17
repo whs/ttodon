@@ -1,5 +1,6 @@
 import { css, html, LitElement } from 'lit';
 import { customElement } from 'lit/decorators.js';
+import { guard } from 'lit/directives/guard.js';
 import { ref, createRef } from 'lit/directives/ref.js';
 import '../../components/t-head';
 import '../../components/t-hotkey';
@@ -7,11 +8,16 @@ import '../../components/t-button';
 import '../../components/t-timeline';
 import '../../components/t-status';
 import '../../components/t-message-bar';
+import '../../components/t-dialog';
+import '../t-login-dialog';
 import type HeaderBar from '../../components/t-head';
 import type MessageBar from '../../components/t-message-bar';
 import type Timeline from '../../components/t-timeline';
 import { repeat } from 'lit/directives/repeat.js';
 import TimelineController from './timelinecontroller';
+import rx from '../../lib/rxdirective';
+import * as clientModel from '../../model/client';
+import { catchError, EMPTY } from 'rxjs';
 
 /**
  * Main UI
@@ -54,11 +60,26 @@ export default class App extends LitElement {
 	messageBar = createRef<MessageBar>();
 	timelineComponent = createRef<Timeline>();
 
+	constructor() {
+		super();
+		this.loadClientState();
+
+		let state = this.getLoginState();
+
+		if (state === LoginState.REDEEM_CODE) {
+			this.redeemCode();
+		}
+		if (state === LoginState.LOGGED_IN) {
+			this.refresh();
+		}
+	}
+
 	render() {
+		let loginState = this.getLoginState();
 		return html`
 			<div class="head">
 				<t-head ${ref(this.head)}>
-					<t-button>
+					<t-button @click=${this.refresh}>
 						<t-hotkey hotkey="R">Refresh</t-hotkey>
 					</t-button>
 					<t-button>
@@ -76,13 +97,17 @@ export default class App extends LitElement {
 						>${this.timelineComponent.value?.selected !== undefined
 							? this.timelineComponent.value.selected + 1
 							: 0}
-						/ ${this.timelineController.currentTimeline.length}</t-menu-item
+						/ ${this.getTimelineCount()}</t-menu-item
 					>
 					<t-menu-item slot="right" title="Status Text Limit"
 						>${this.getStatusTextLeft()}</t-menu-item
 					>
 				</t-head>
 			</div>
+			${loginState === LoginState.NO_USER &&
+			html`<t-login-dialog></t-login-dialog>`}
+			${loginState === LoginState.REDEEM_CODE &&
+			html`<t-dialog title="Logging in..."></t-dialog>`}
 			<t-timeline
 				toppad="${this.head.value?.offsetHeight || 25}"
 				bottompad="${this.bottomBar.value?.offsetHeight || 45}"
@@ -92,23 +117,26 @@ export default class App extends LitElement {
 				<div class="welcome" slot="header">
 					<strong>${__APP_NAME__}</strong> [Version ${__APP_VERSION__}]
 				</div>
-				${repeat(
-					this.timelineController.currentTimeline,
-					(item) => item.value.id,
-					(item) => html`<t-status .object=${item.value}></t-status>`
+				${guard([this.timelineController.currentTimeline], () =>
+					repeat(
+						this.timelineController.currentTimeline,
+						(item) => item.value.id,
+						(item) => html`<t-status .object=${rx(item)}></t-status>`
+					)
 				)}
 			</t-timeline>
 			<div class="message-bar" ${ref(this.bottomBar)}}>
 				<t-message-bar
 					@input=${() => this.requestUpdate()}
-					autofocus
+					.autofocus=${loginState === LoginState.LOGGED_IN}
 					${ref(this.messageBar)}}
 				></t-message-bar>
 			</div>
 		`;
 	}
 
-	protected firstUpdated() {
+	protected async firstUpdated() {
+		await this.updateComplete;
 		this.requestUpdate();
 	}
 
@@ -123,6 +151,10 @@ export default class App extends LitElement {
 		window.removeEventListener('resize', this.onResize);
 	}
 
+	protected getTimelineCount() {
+		return this.timelineController.currentTimeline.length;
+	}
+
 	private onResize = () => {
 		this.requestUpdate();
 	};
@@ -132,6 +164,81 @@ export default class App extends LitElement {
 
 		return 140 - enteredText.length;
 	}
+
+	protected getLoginState(): LoginState {
+		// quickly match first, so we don't need to parse full URL
+		if (window.location.search.includes('code=')) {
+			let url = new URL(window.location.toString());
+			if (url.searchParams.has('code')) {
+				return LoginState.REDEEM_CODE;
+			}
+		}
+		if (clientModel.instance.value?.hasUserToken.value === true) {
+			return LoginState.LOGGED_IN;
+		}
+
+		return LoginState.NO_USER;
+	}
+
+	protected async redeemCode() {
+		let url = new URL(window.location.toString());
+		// TODO: We should have a state param...
+		try {
+			var server = new URL(url.searchParams.get('server')!);
+		} catch (e) {
+			console.error('fail to parse server url', e);
+			return;
+		}
+		if (!clientModel.hasServerInfo(server)) {
+			return;
+		}
+		await clientModel.setServer(server);
+
+		let code = url.searchParams.get('code')!;
+		try {
+			await clientModel.exchangeCode(code);
+			clientModel.storeLastServerUsed();
+			window.location.search = '';
+		} catch (e: any) {
+			alert(`Fail to exchange code: ${e}`);
+			console.error('code redeem fail', e);
+			return;
+		}
+	}
+
+	protected async loadClientState() {
+		let lastServer = clientModel.getLastServerUsed();
+		if (!lastServer) {
+			return;
+		}
+
+		await clientModel.setServer(lastServer);
+	}
+
+	refresh = () => {
+		console.log('refreshing...');
+		let currentTimeline = this.timelineController.currentTimeline;
+		let lastId = undefined;
+
+		if (currentTimeline.length > 0) {
+			lastId = currentTimeline[currentTimeline.length - 1].value.id;
+		}
+
+		this.timelineController.timeline.sources.next(
+			clientModel.instance.value!.loadHomeTimeline({ min_id: lastId }).pipe(
+				catchError((err) => {
+					console.error('fail to load timeline', err);
+					return EMPTY;
+				})
+			)
+		);
+	};
+}
+
+enum LoginState {
+	NO_USER,
+	REDEEM_CODE,
+	LOGGED_IN,
 }
 
 declare global {

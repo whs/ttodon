@@ -9,6 +9,9 @@ export default class Dialog extends LitElement {
 	@property({ type: String })
 	title!: string;
 
+	@property({ type: Boolean })
+	closeable: boolean = false;
+
 	static styles = css`
 		:host {
 			position: fixed;
@@ -41,8 +44,8 @@ export default class Dialog extends LitElement {
 
 		footer {
 			color: #696867;
-			padding: 0.8em 1.5em 1.2em;
 			font-size: 8pt;
+			padding: 0.8em 1.5em 1.2em;
 		}
 	`;
 
@@ -51,7 +54,9 @@ export default class Dialog extends LitElement {
 			<div class="dialog">
 				<header>
 					${this.title}
-					<span class="link" @click="${this.onClose}"> (x)</span>
+					${this.closeable
+						? html`<span class="link" @click="${this.onClose}"> (x)</span>`
+						: undefined}
 				</header>
 				<div class="content">
 					<slot></slot>
@@ -65,8 +70,12 @@ export default class Dialog extends LitElement {
 
 	private onClose(e: MouseEvent) {
 		e.preventDefault();
-		const event = new CustomEvent('close', { bubbles: true, composed: true });
 
+		if (!this.closeable) {
+			return;
+		}
+
+		const event = new CustomEvent('close', { bubbles: true, composed: true });
 		this.dispatchEvent(event);
 	}
 }

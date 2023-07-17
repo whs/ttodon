@@ -66,6 +66,12 @@ export default class Status extends LitElement {
 			/* TODO: Remove */
 			display: inline;
 		}
+
+		.text a {
+			color: inherit;
+			cursor: pointer;
+			text-decoration: none;
+		}
 	`;
 
 	render() {

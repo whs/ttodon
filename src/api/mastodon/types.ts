@@ -142,6 +142,21 @@ export interface PreviewCard {
 	blurhash: string | null;
 }
 
+export interface MastodonApplication {
+	name: string;
+	website?: string | null;
+	vapid_key?: string;
+	client_id?: string;
+	client_secret?: string;
+}
+
+export interface OAuthTokenResponse {
+	access_token: string;
+	token_type: string;
+	scope: string;
+	created_at: number;
+}
+
 type StreamCategory =
 	| 'public'
 	| 'public:media'

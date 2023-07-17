@@ -20,6 +20,7 @@ export class Hotkey extends LitElement {
 		.hotkey {
 			color: var(--text-highlight-color);
 			text-decoration: underline;
+			font-weight: bold;
 		}
 
 		.hotkey-alt {

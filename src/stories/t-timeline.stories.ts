@@ -46,6 +46,7 @@ const meta = {
 				min: 0,
 			},
 		},
+		onselect: { action: 'select' },
 	},
 } satisfies Meta<TTimeline>;
 
@@ -53,12 +54,13 @@ export default meta;
 type Story = StoryObj<TTimeline>;
 
 export const WithoutUserInfo: Story = {
-	render: ({ scrollOffset, topPad, bottomPad, selected }) =>
+	render: ({ scrollOffset, topPad, bottomPad, selected, onselect }) =>
 		html` <t-timeline
 			scrolloffset="${scrollOffset}"
 			toppad="${topPad}"
 			bottomPad="${bottomPad}"
 			selected="${selected}"
+			@select=${onselect}
 		>
 			<div slot="header"><h1>Timeline</h1></div>
 			<t-status .object="${status}"></t-status>
@@ -72,12 +74,13 @@ export const WithoutUserInfo: Story = {
 };
 
 export const WithUserInfo: Story = {
-	render: ({ scrollOffset, topPad, bottomPad, selected }) =>
+	render: ({ scrollOffset, topPad, bottomPad, selected, onselect }) =>
 		html` <t-timeline
 			scrolloffset="${scrollOffset}"
 			toppad="${topPad}"
 			bottomPad="${bottomPad}"
 			selected="${selected}"
+			@select=${onselect}
 		>
 			<div slot="header"><h1>Timeline</h1></div>
 			<t-user-info slot="header"></t-user-info>
@@ -120,6 +123,7 @@ class TimelineInContainer extends LitElement {
 					bottomPad="${this.args.bottomPad}"
 					selected="${this.args.selected}"
 					.scrollParent="${this.containerRef.value}"
+					@select=${this.args.onselect}
 				>
 					${repeat(
 						arrayOf10k,
@@ -163,7 +167,7 @@ export const InContainer: StoryObj<TTimeline & TimelineInContainer> = {
 };
 
 export const WithNonStatus: Story = {
-	render: ({ scrollOffset, topPad, bottomPad, selected }) =>
+	render: ({ scrollOffset, topPad, bottomPad, selected, onselect }) =>
 		html` <style>
 				.item {
 					background: #888;
@@ -183,6 +187,7 @@ export const WithNonStatus: Story = {
 				toppad="${topPad}"
 				bottomPad="${bottomPad}"
 				selected="${selected}"
+				@select=${onselect}
 			>
 				<div slot="header"><h1>Timeline</h1></div>
 				<div class="item">Item 1</div>

@@ -7,14 +7,25 @@ import { customElement } from 'lit/decorators.js';
  */
 @customElement('t-button')
 export default class Button extends LitElement {
+	static formAssociated = true;
+
 	static styles = css`
 		:host {
 			display: inline-block;
-			padding: 5px 7px;
-			cursor: pointer;
 		}
 
-		:host(:hover) {
+		button {
+			padding: 5px 7px;
+			cursor: pointer;
+			background: transparent;
+			border: 0;
+			color: inherit;
+			margin: 0;
+			display: inline-block;
+			line-height: 1.03em;
+		}
+
+		button:hover {
 			background: #454443;
 		}
 
@@ -23,8 +34,15 @@ export default class Button extends LitElement {
 		}
 	`;
 
+	constructor() {
+		super();
+		this.attachInternals();
+	}
+
 	render() {
-		return html` <slot></slot> `;
+		return html`<button>
+			<slot></slot>
+		</button>`;
 	}
 }
 

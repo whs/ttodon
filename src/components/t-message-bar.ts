@@ -35,7 +35,6 @@ export default class MessageBar extends LitElement {
 			height: 3em;
 			font-size: 11pt;
 			resize: none;
-			-webkit-appearance: none;
 			outline: none;
 		}
 	`;
@@ -57,8 +56,9 @@ export default class MessageBar extends LitElement {
 		></textarea>`;
 	}
 
-	protected firstUpdated() {
+	protected async firstUpdated() {
 		if (this.autofocus) {
+			await this.updateComplete;
 			this.focus();
 		}
 	}

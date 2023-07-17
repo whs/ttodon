@@ -19,7 +19,7 @@ export default class HeaderBar extends LitElement {
 			padding: 0 5px;
 			box-sizing: border-box;
 		}
-		::slotted(*) {
+		::slotted(:not(t-button)) {
 			display: inline-block;
 			padding: 5px 7px;
 		}
