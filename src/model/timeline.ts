@@ -86,7 +86,8 @@ export class Timeline {
 
 			if (e.event === BATCH_UPDATE_EVENT) {
 				for (let item of e.data) {
-					if (!item.content) {
+					if (!item.content && !item.reblog) {
+						console.log('unknown status discarded', item);
 						continue;
 					}
 

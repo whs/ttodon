@@ -77,8 +77,6 @@ export default class Timeline extends LitElement implements ScrollableHost {
 		if (changedProperties.has('selected')) {
 			this.onSelectedChange(changedProperties.get('selected'), this.selected);
 		}
-
-		this.scrollSelectedIntoView();
 	}
 
 	protected onSelectedChange(
@@ -95,22 +93,23 @@ export default class Timeline extends LitElement implements ScrollableHost {
 			let newSelected = statuses[newValue];
 			newSelected?.setAttribute('selected', 'true');
 		}
+
+		this.scrollSelectedIntoView();
 	}
 
 	protected handleStatusChange(_: Event) {
 		let statuses = this.statuses;
-
-		// handleFirstLoad
-		if (
-			this.itemCount === 0 &&
-			statuses.length > 0 &&
-			this.selected === undefined
-		) {
-			this.selected = this.getDefaultSelectedItemIndex();
-			this.onSelectedChange(undefined, this.selected);
-		}
-
 		this.itemCount = statuses.length;
+
+		if (this.selected !== undefined) {
+			let selectedStatus = statuses[this.selected];
+			if (!selectedStatus || selectedStatus.hasAttribute('selected')) {
+				return;
+			}
+
+			selectedStatus.setAttribute('selected', 'true');
+			this.scrollSelectedIntoView();
+		}
 	}
 
 	protected onStatusClicked = (e: MouseEvent) => {
@@ -157,14 +156,6 @@ export default class Timeline extends LitElement implements ScrollableHost {
 		}
 
 		this.scrollController.scrollChildIntoView(selectedNode);
-	}
-
-	getDefaultSelectedItemIndex() {
-		// TODO
-		// if (xtra_timeline == 'fave' || xtra_timeline == 'dms' || xtra_timeline == 'mentions') {
-		// 	return this._timeline.items.length - 1;
-		// }
-		return 0;
 	}
 }
 

@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
 import { guard } from 'lit/directives/guard.js';
 import { ref, createRef } from 'lit/directives/ref.js';
 import '../../components/t-head';
@@ -18,6 +18,7 @@ import TimelineController from './timelinecontroller';
 import rx from '../../lib/rxdirective';
 import * as clientModel from '../../model/client';
 import { catchError, EMPTY } from 'rxjs';
+import MouseScrollController from './mousescrollcontroller.ts';
 
 /**
  * Main UI
@@ -54,6 +55,10 @@ export default class App extends LitElement {
 	`;
 
 	timelineController = new TimelineController(this);
+	mouseScrollController = new MouseScrollController(this);
+
+	@state()
+	selectedItem: number | undefined = undefined;
 
 	head = createRef<HeaderBar>();
 	bottomBar = createRef<HTMLDivElement>();
@@ -83,7 +88,7 @@ export default class App extends LitElement {
 						<t-hotkey hotkey="R">Refresh</t-hotkey>
 					</t-button>
 					<t-button>
-						<t-hotkey hotkey="T" hotkeyindex="6">Retweet</t-hotkey>
+						<t-hotkey hotkey="T">Boost</t-hotkey>
 					</t-button>
 					<t-button>
 						<t-hotkey hotkey="Y">Reply</t-hotkey>
@@ -94,10 +99,8 @@ export default class App extends LitElement {
 					<t-button> ▼ </t-button>
 
 					<t-menu-item slot="right" title="Position"
-						>${this.timelineComponent.value?.selected !== undefined
-							? this.timelineComponent.value.selected + 1
-							: 0}
-						/ ${this.getTimelineCount()}</t-menu-item
+						>${this.selectedItem !== undefined ? this.selectedItem + 1 : 0} /
+						${this.getTimelineCount()}</t-menu-item
 					>
 					<t-menu-item slot="right" title="Status Text Limit"
 						>${this.getStatusTextLeft()}</t-menu-item
@@ -111,7 +114,8 @@ export default class App extends LitElement {
 			<t-timeline
 				toppad="${this.head.value?.offsetHeight || 25}"
 				bottompad="${this.bottomBar.value?.offsetHeight || 45}"
-				@select=${() => this.requestUpdate()}
+				selected=${this.selectedItem}
+				@select=${(e: CustomEvent) => (this.selectedItem = e.detail)}
 				@replyclick=${this.onReplyClick}
 				${ref(this.timelineComponent)}
 			>
@@ -172,8 +176,7 @@ export default class App extends LitElement {
 			return;
 		}
 
-		this.timelineComponent.value!.selected = statusIndex;
-		this.requestUpdate();
+		this.selectedItem = statusIndex;
 	};
 
 	getStatusTextLeft() {

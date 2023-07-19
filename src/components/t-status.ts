@@ -5,6 +5,7 @@ import { MastodonStatus } from '../api/mastodon/types';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import './t-acct';
 
 dayjs.extend(utc);
 
@@ -109,11 +110,11 @@ export default class Status extends LitElement {
 				<img class="avatar" src="${this.object.account.avatar}" />
 				<div class="content">
 					<span class="username" title="${this.object.account.display_name}"
-						>${this.object.account.acct}</span
-					>
+						><t-acct acct="${this.object.account.acct}"></t-acct></span
+					>${' '}
 					<span class="text">${this.renderText()}</span>
 					<span class="meta">
-						${this.object.reblog ? html`(rt) ` : null}
+						${this.object.reblog ? html`(boost) ` : null}
 						<a target="_blank" href="${this.object.url || this.object.uri}"
 							>${this.getCreatedDate().format(
 								this.getDateFormat(this.getCreatedDate())
@@ -141,8 +142,10 @@ export default class Status extends LitElement {
 		// TODO: Don't use unsafeHTML
 
 		if (status.reblog) {
-			return html`RB ${status.reblog.account.acct}:
-			${this.renderText(status.reblog)}`;
+			return html`<strong>Boost</strong>${' '} @<t-acct
+					acct="${status.reblog.account.acct}"
+				></t-acct
+				>: ${this.renderText(status.reblog)}`;
 		}
 
 		return unsafeHTML(status.content);
