@@ -5,6 +5,7 @@ import type TStatus from '../components/t-status';
 import { status } from './data';
 import dayjs from 'dayjs';
 
+const externalAccount = {...status.account, acct: 'user@anotherserver'};
 const meta = {
 	title: 'Component/t-status',
 	component: 't-status',
@@ -41,16 +42,6 @@ export const SameDayStatus: Story = {
 		html` <t-status .object="${object}" .selected="${selected}"></t-status>`,
 }
 
-export const BoostedStatus: Story = {
-	name: 'Boosted status',
-	args: {
-		object: { ...status, reblog: status },
-		selected: false,
-	},
-	render: ({ object, selected }) =>
-		html` <t-status .object="${object}" .selected="${selected}"></t-status>`,
-}
-
 export const ReplyStatus: Story = {
 	name: 'Reply status',
 	args: {
@@ -64,8 +55,48 @@ export const ReplyStatus: Story = {
 export const ExternalStatus: Story = {
 	name: 'Different domain status',
 	args: {
-		object: {...status, account: {...status.account, acct: 'whs@test.storybook'}},
+		object: {...status, account: externalAccount},
 		selected: false
+	},
+	render: ({ object, selected }) =>
+		html` <t-status .object="${object}" .selected="${selected}"></t-status>`,
+}
+
+export const BoostedStatusInternalInternal: Story = {
+	name: 'Boosted status (internal-internal)',
+	args: {
+		object: { ...status, reblog: status },
+		selected: false,
+	},
+	render: ({ object, selected }) =>
+		html` <t-status .object="${object}" .selected="${selected}"></t-status>`,
+}
+
+export const BoostedStatusInternalExternal: Story = {
+	name: 'Boosted status (internal-external)',
+	args: {
+		object: { ...status, reblog: { ...status, account: externalAccount } },
+		selected: false,
+	},
+	render: ({ object, selected }) =>
+		html` <t-status .object="${object}" .selected="${selected}"></t-status>`,
+}
+
+export const BoostedStatusExternalExternal: Story = {
+	name: 'Boosted status (external-external)',
+	args: {
+		object: { ...status, reblog: { ...status, account: externalAccount }, account: externalAccount },
+		selected: false,
+	},
+	render: ({ object, selected }) =>
+		html` <t-status .object="${object}" .selected="${selected}"></t-status>`,
+}
+
+export const BoostedStatusExternalInternal: Story = {
+	name: 'Boosted status (external-internal)',
+	args: {
+		object: { ...status, reblog: status, account: externalAccount },
+		selected: false,
 	},
 	render: ({ object, selected }) =>
 		html` <t-status .object="${object}" .selected="${selected}"></t-status>`,
