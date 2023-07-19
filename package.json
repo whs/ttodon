@@ -9,7 +9,7 @@
 		"build": "tsc && vite build",
 		"deploy": "wrangler pages deploy dist --project-name ttodon",
 		"preview": "vite preview",
-		"storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook dev -p 6006",
+		"storybook": "storybook dev -p 6006 --disable-telemetry",
 		"build-storybook": "STORYBOOK_DISABLE_TELEMETRY=1 storybook build",
 		"prettier": "prettier -w .",
 		"deploy-storybook": "wrangler pages deploy storybook-static --project-name ttodon --branch storybook"
