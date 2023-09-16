@@ -1,9 +1,12 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
+import { map } from 'lit/directives/map.js';
+import { styleMap } from 'lit/directives/style-map.js';
 import { MastodonStatus } from '../api/mastodon/types';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import './t-acct';
+import './t-blurhash';
 import sanitize from '../lib/sanitize.ts';
 
 dayjs.extend(utc);
@@ -51,6 +54,7 @@ export default class Status extends LitElement {
 		.content {
 			margin-left: 16px;
 			min-height: 34px;
+			width: 100%;
 		}
 
 		.username {
@@ -78,14 +82,39 @@ export default class Status extends LitElement {
 		}
 
 		.text p {
-			/* TODO: Remove */
-			display: inline;
 		}
 
 		.text a {
 			color: inherit;
 			cursor: pointer;
 			text-decoration: none;
+		}
+
+		.attachments {
+			margin-top: 10px;
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			gap: 3px;
+			height: 0;
+			overflow-y: hidden;
+			overflow-x: auto;
+			white-space: nowrap;
+			transition: height 100ms ease-in-out;
+		}
+
+		.attachment {
+			flex: 1;
+			text-align: center;
+		}
+
+		:host([selected]) .attachments {
+			height: 100px;
+		}
+
+		t-blurhash {
+			display: inline-block;
+			overflow: hidden;
 		}
 	`;
 
@@ -132,6 +161,26 @@ export default class Status extends LitElement {
 						>`}
 						<slot name="metadata"></slot>
 					</span>
+					<slot name="attachments"
+						>${this.object.media_attachments.length > 0
+							? html`<div class="attachments">
+									${map(this.object.media_attachments, (attachment) => {
+										if (attachment.blurhash) {
+											return html`<div class="attachment">
+												<t-blurhash
+													width="${attachment.meta.small.width}"
+													height="${attachment.meta.small.height}"
+													blurhash="${attachment.blurhash}"
+													style=${styleMap({
+														aspectRatio: `${attachment.meta.small.aspect}`,
+													})}
+												></t-blurhash>
+											</div>`;
+										}
+									})}
+							  </div>`
+							: null}
+					</slot>
 				</div>
 			</div>
 		`;
@@ -179,6 +228,13 @@ export default class Status extends LitElement {
 		});
 		this.dispatchEvent(event);
 	};
+
+	get additionalHeight() {
+		if (this.object.media_attachments.length > 0) {
+			return 100;
+		}
+		return 0;
+	}
 }
 
 declare global {

@@ -29,6 +29,18 @@ export interface ScrollableHost extends ReactiveControllerHost {
 	bottomPad: number;
 }
 
+/**
+ * Child node of Scrollable who implement this interface will have additional height added in height computation.
+ * Good for adding the height of elements visible on show
+ */
+export interface AdditionalHeightChild {
+	additionalHeight: number;
+}
+
+function hasAdditionalHeight(e: any): e is AdditionalHeightChild {
+	return typeof (e as any)['additionalHeight'] !== 'undefined';
+}
+
 export default class ScrollController implements ReactiveController {
 	host: ScrollableHost;
 	animationInfo:
@@ -71,6 +83,9 @@ export default class ScrollController implements ReactiveController {
 	scrollChildIntoView(child: HTMLElement) {
 		let top = child.offsetTop;
 		let bottom = top + child.offsetHeight;
+		if (hasAdditionalHeight(child)) {
+			bottom += child.additionalHeight;
+		}
 		let viewport = this.getScrollVisibleArea();
 
 		if (bottom > viewport.bottom - this.host.scrollOffset) {

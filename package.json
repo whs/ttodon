@@ -17,6 +17,7 @@
 	"dependencies": {
 		"@open-wc/lit-helpers": "^0.6.0",
 		"axios": "^1.5.0",
+		"blurhash": "^2.0.5",
 		"dayjs": "^1.11.9",
 		"dompurify": "^3.0.5",
 		"immer": "^10.0.2",
