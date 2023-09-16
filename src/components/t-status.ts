@@ -1,11 +1,10 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { MastodonStatus } from '../api/mastodon/types';
-// TODO: Don't use this!!!
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import './t-acct';
+import sanitize from '../lib/sanitize.ts';
 
 dayjs.extend(utc);
 
@@ -139,8 +138,6 @@ export default class Status extends LitElement {
 	}
 
 	protected renderText(status = this.object): any {
-		// TODO: Don't use unsafeHTML
-
 		if (status.reblog) {
 			return html`<strong>Boost</strong>${' '} @<t-acct
 					acct="${status.reblog.account.acct}"
@@ -148,7 +145,7 @@ export default class Status extends LitElement {
 				>: ${this.renderText(status.reblog)}`;
 		}
 
-		return unsafeHTML(status.content);
+		return sanitize(status.content);
 	}
 
 	protected getInReplyToUsername() {
