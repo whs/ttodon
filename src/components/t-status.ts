@@ -29,6 +29,7 @@ export default class Status extends LitElement {
 	static styles = css`
 		:host {
 			display: block;
+			--paragraph-margin: 0.35em;
 		}
 
 		.status {
@@ -80,6 +81,18 @@ export default class Status extends LitElement {
 		}
 
 		.text p {
+			display: inline;
+		}
+		/* Mastodon use <p> for paragraph breaks */
+		.text p:nth-of-type(n + 2) {
+			display: block;
+			margin: var(--paragraph-margin) 0;
+		}
+		/* Pleorama use <br><br> for paragraph breaks */
+		.text > br {
+			display: block;
+			content: '';
+			margin: calc(var(--paragraph-margin) / 2) 0;
 		}
 
 		.text a {
