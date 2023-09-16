@@ -1,7 +1,5 @@
 import { css, html, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
-import { map } from 'lit/directives/map.js';
-import { styleMap } from 'lit/directives/style-map.js';
 import { MastodonStatus } from '../api/mastodon/types';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
@@ -89,33 +87,6 @@ export default class Status extends LitElement {
 			cursor: pointer;
 			text-decoration: none;
 		}
-
-		.attachments {
-			margin-top: 10px;
-			display: flex;
-			justify-content: space-around;
-			align-items: center;
-			gap: 3px;
-			height: 0;
-			overflow-y: hidden;
-			overflow-x: auto;
-			white-space: nowrap;
-			transition: height 100ms ease-in-out;
-		}
-
-		.attachment {
-			flex: 1;
-			text-align: center;
-		}
-
-		:host([selected]) .attachments {
-			height: 100px;
-		}
-
-		t-blurhash {
-			display: inline-block;
-			overflow: hidden;
-		}
 	`;
 
 	getCreatedDate() {
@@ -161,26 +132,6 @@ export default class Status extends LitElement {
 						>`}
 						<slot name="metadata"></slot>
 					</span>
-					<slot name="attachments"
-						>${this.object.media_attachments.length > 0
-							? html`<div class="attachments">
-									${map(this.object.media_attachments, (attachment) => {
-										if (attachment.blurhash) {
-											return html`<div class="attachment">
-												<t-blurhash
-													width="${attachment.meta.small.width}"
-													height="${attachment.meta.small.height}"
-													blurhash="${attachment.blurhash}"
-													style=${styleMap({
-														aspectRatio: `${attachment.meta.small.aspect}`,
-													})}
-												></t-blurhash>
-											</div>`;
-										}
-									})}
-							  </div>`
-							: null}
-					</slot>
 				</div>
 			</div>
 		`;
@@ -228,13 +179,6 @@ export default class Status extends LitElement {
 		});
 		this.dispatchEvent(event);
 	};
-
-	get additionalHeight() {
-		if (this.object.media_attachments.length > 0) {
-			return 100;
-		}
-		return 0;
-	}
 }
 
 declare global {
