@@ -1,3 +1,4 @@
+import { beforeEach, afterEach, describe, test, expect } from 'vitest';
 import { AllowedEvent, BATCH_UPDATE_EVENT, Timeline } from './timeline';
 import { firstValueFrom, lastValueFrom, skip, Subject } from 'rxjs';
 import { MastodonStatus } from '../api/mastodon/types';
@@ -17,7 +18,7 @@ afterEach(() => {
 });
 
 function fakeStatus(id: string | number): MastodonStatus {
-	return { id: id.toString() } as any;
+	return { id: id.toString(), content: id.toString() } as any;
 }
 
 describe('timeline', function () {
