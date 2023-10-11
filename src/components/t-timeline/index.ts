@@ -43,7 +43,7 @@ export default class Timeline extends LitElement implements ScrollableHost {
 	`;
 
 	@state()
-	protected itemCount = 0;
+	itemCount = 0;
 
 	protected scrollController = new ScrollController(this);
 
