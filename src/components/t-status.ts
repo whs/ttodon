@@ -115,7 +115,6 @@ export default class Status extends LitElement {
 
 	render() {
 		// TODO: status-mention status-faved status-filtered status-highed
-		// TODO: Acct should show @ part in small text
 
 		return html`
 			<div class="status">

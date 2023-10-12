@@ -2,7 +2,7 @@ import { ReactiveController } from 'lit';
 import type App from './index';
 
 export default class MouseScrollController implements ReactiveController {
-	host: App;
+	protected host: App;
 
 	protected cumulativeDelta = 20;
 

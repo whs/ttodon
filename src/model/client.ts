@@ -1,7 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import MastodonClient from '../api/mastodon/client';
 
-export let instance = new BehaviorSubject<MastodonClient | undefined>(
+export const instance = new BehaviorSubject<MastodonClient | undefined>(
 	undefined
 );
 

@@ -1,5 +1,5 @@
 import { css, html, LitElement } from 'lit';
-import { customElement, state } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import { guard } from 'lit/directives/guard.js';
 import { ref, createRef } from 'lit/directives/ref.js';
 import '../../components/t-head';
@@ -10,6 +10,7 @@ import '../../components/t-status';
 import '../../components/t-message-bar';
 import '../../components/t-dialog';
 import '../t-login-dialog';
+import '../t-notify-manager';
 import type HeaderBar from '../../components/t-head';
 import type MessageBar from '../../components/t-message-bar';
 import type Timeline from '../../components/t-timeline';
@@ -17,8 +18,10 @@ import { repeat } from 'lit/directives/repeat.js';
 import TimelineController from './timelinecontroller';
 import rx from '../../lib/rxdirective';
 import * as clientModel from '../../model/client';
-import { catchError, EMPTY } from 'rxjs';
-import MouseScrollController from './mousescrollcontroller.ts';
+import { catchError, EMPTY, Subject, tap } from 'rxjs';
+import MouseScrollController from './mousescrollcontroller';
+import { Notification, notificationStreamContext } from '../../model/notify';
+import { provide } from '@lit/context';
 
 /**
  * Main UI
@@ -56,6 +59,10 @@ export default class App extends LitElement {
 
 	timelineController = new TimelineController(this);
 	mouseScrollController = new MouseScrollController(this);
+
+	@provide({ context: notificationStreamContext })
+	@property({ attribute: false })
+	notifyStream = new Subject<Notification>();
 
 	@state()
 	selectedItem: number | undefined = undefined;
@@ -111,6 +118,7 @@ export default class App extends LitElement {
 			html`<t-login-dialog></t-login-dialog>`}
 			${loginState === LoginState.REDEEM_CODE &&
 			html`<t-dialog title="Logging in..."></t-dialog>`}
+			<t-notify-manager stream=${this.notifyStream}></t-notify-manager>
 			<t-timeline
 				toppad="${this.head.value?.offsetHeight || 25}"
 				bottompad="${this.bottomBar.value?.offsetHeight || 45}"
@@ -236,7 +244,9 @@ export default class App extends LitElement {
 	}
 
 	refresh = () => {
-		console.log('refreshing...');
+		this.notifyStream.next({
+			text: 'Refreshing Timeline...',
+		});
 		let currentTimeline = this.timelineController.currentTimeline;
 		let lastId = undefined;
 
@@ -246,8 +256,16 @@ export default class App extends LitElement {
 
 		this.timelineController.timeline.sources.next(
 			clientModel.instance.value!.loadHomeTimeline({ min_id: lastId }).pipe(
+				tap(() => {
+					this.notifyStream.next({
+						text: 'Timeline Loaded.',
+					});
+				}),
 				catchError((err) => {
 					console.error('fail to load timeline', err);
+					this.notifyStream.next({
+						text: 'Oops! Network Error.',
+					});
 					return EMPTY;
 				})
 			)

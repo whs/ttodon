@@ -15,6 +15,7 @@
 		"deploy-storybook": "wrangler pages deploy storybook-static --project-name ttodon --branch storybook"
 	},
 	"dependencies": {
+		"@lit/context": "^1.0.0",
 		"axios": "^1.5.1",
 		"blurhash": "^2.0.5",
 		"dayjs": "^1.11.10",
