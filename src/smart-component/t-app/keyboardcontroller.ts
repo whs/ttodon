@@ -1,6 +1,5 @@
 import { ReactiveController } from 'lit';
 import type App from './index';
-import { keyToString } from '../t-keyboard-manager.ts';
 
 export type KeyboardAction = string;
 

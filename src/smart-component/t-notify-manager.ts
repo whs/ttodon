@@ -1,4 +1,4 @@
-import { css, html, LitElement, ReactiveController } from 'lit';
+import { html, LitElement, ReactiveController } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { Notification, notificationStreamContext } from '../model/notify';
 import { ContextConsumer } from '@lit/context';

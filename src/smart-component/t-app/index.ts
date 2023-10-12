@@ -303,10 +303,10 @@ export default class App extends LitElement {
 			e.preventDefault();
 			scrollUp();
 		});
-		this.keyboardController.registerAction('previousMention', (e) => {
+		this.keyboardController.registerAction('previousMention', () => {
 			// TODO: Shift = find previous mention
 		});
-		this.keyboardController.registerAction('alwaysPreviousMention', (e) => {
+		this.keyboardController.registerAction('alwaysPreviousMention', () => {
 			// TODO: Shift = find previous mention
 		});
 		this.keyboardController.registerAction('scrollDown', (e) => {
@@ -323,10 +323,10 @@ export default class App extends LitElement {
 			e.preventDefault();
 			scrollDown();
 		});
-		this.keyboardController.registerAction('nextMention', (e) => {
+		this.keyboardController.registerAction('nextMention', () => {
 			// TODO: Shift = find next mention
 		});
-		this.keyboardController.registerAction('alwaysNextMention', (e) => {
+		this.keyboardController.registerAction('alwaysNextMention', () => {
 			// TODO: Shift = find next mention
 		});
 
