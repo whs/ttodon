@@ -1,5 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 import {
+	CreateStatusRequest,
 	MastodonApplication,
 	MastodonStatus,
 	OAuthTokenResponse,
@@ -107,5 +108,9 @@ export default class MastodonClient {
 					}) as AllowedEvent
 			)
 		);
+	}
+
+	postStatus(request: CreateStatusRequest) {
+		return this.client.postForm<MastodonStatus>('api/v1/statuses', request);
 	}
 }

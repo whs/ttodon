@@ -24,6 +24,14 @@ export default class KeyboardController implements ReactiveController {
 		document.removeEventListener('keydown', this.onKeyPress);
 	}
 
+	getKeyForAction(action: KeyboardAction): string | undefined {
+		for (let key of Object.keys(this.registeredHotkeys)) {
+			if (this.registeredHotkeys[key] === action) {
+				return key;
+			}
+		}
+	}
+
 	protected onKeyPress = (e: KeyboardEvent) => {
 		let keyChar = keyToString(e);
 		if (this.registeredHotkeys.hasOwnProperty(keyChar)) {

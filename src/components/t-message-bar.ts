@@ -12,7 +12,7 @@ export default class MessageBar extends LitElement {
 	autofocus: boolean = false;
 
 	@property({ type: String })
-	value: String = '';
+	value: string = '';
 
 	static styles = css`
 		:host {
@@ -45,15 +45,20 @@ export default class MessageBar extends LitElement {
 		this.inputRef.value!.focus();
 	}
 
+	reset() {
+		this.value = '';
+	}
+
 	render() {
 		return html`<textarea
 			cols="100"
 			rows="2"
 			autocomplete="off"
-			value=${this.value}
 			@input=${this.onInput}
 			${ref(this.inputRef)}
-		></textarea>`;
+		>
+${this.value}</textarea
+		>`;
 	}
 
 	protected async firstUpdated() {

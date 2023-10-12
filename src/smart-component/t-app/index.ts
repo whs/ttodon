@@ -18,7 +18,7 @@ import { repeat } from 'lit/directives/repeat.js';
 import TimelineController from './timelinecontroller';
 import rx from '../../lib/rxdirective';
 import * as clientModel from '../../model/client';
-import { catchError, EMPTY, Subject, tap } from 'rxjs';
+import { catchError, EMPTY, of, Subject, tap } from 'rxjs';
 import MouseScrollController from './mousescrollcontroller';
 import { Notification, notificationStreamContext } from '../../model/notify';
 import { provide } from '@lit/context';
@@ -216,6 +216,8 @@ export default class App extends LitElement {
 		// TODO: Make this customizable
 		this.keyboardController.registerHotkey('Home', 'scrollTop');
 		this.keyboardController.registerHotkey('End', 'scrollBottom');
+		this.keyboardController.registerHotkey('ctrl+Home', 'alwaysScrollTop');
+		this.keyboardController.registerHotkey('ctrl+End', 'alwaysScrollBottom');
 		this.keyboardController.registerHotkey('Enter', 'send');
 		this.keyboardController.registerHotkey('ArrowUp', 'scrollUp');
 		this.keyboardController.registerHotkey('ctrl+ArrowUp', 'alwaysScrollUp');
@@ -247,16 +249,30 @@ export default class App extends LitElement {
 
 		// Ported from keyDown function
 		this.keyboardController.registerAction('scrollTop', (e) => {
+			if (this.messageBar.value?.value.length || 0 > 0) {
+				return;
+			}
 			e.preventDefault();
 			this.selectedItem = 0;
 		});
 		this.keyboardController.registerAction('scrollBottom', (e) => {
+			if (this.messageBar.value?.value.length || 0 > 0) {
+				return;
+			}
+			e.preventDefault();
+			this.selectedItem = this.timelineController.currentTimeline.length - 1;
+		});
+		this.keyboardController.registerAction('alwaysScrollTop', (e) => {
+			e.preventDefault();
+			this.selectedItem = 0;
+		});
+		this.keyboardController.registerAction('alwaysScrollBottom', (e) => {
 			e.preventDefault();
 			this.selectedItem = this.timelineController.currentTimeline.length - 1;
 		});
 		this.keyboardController.registerAction('send', (e) => {
 			e.preventDefault();
-			this.notifyStream.next({ text: 'TODO: Post toot' });
+			this.sendCurrentStatus();
 		});
 		this.keyboardController.registerAction('refresh', (e) => {
 			e.preventDefault();
@@ -365,15 +381,22 @@ export default class App extends LitElement {
 		this.notifyStream.next({
 			text: 'Refreshing Timeline...',
 		});
-		let currentTimeline = this.timelineController.currentTimeline;
-		let lastId = undefined;
+		// Seems that thaiWitter do not use lastId
+		// let currentTimeline = this.timelineController.currentTimeline;
+		// let lastId = undefined;
+		//
+		// if (currentTimeline.length > 0) {
+		// 	lastId = currentTimeline[currentTimeline.length - 1].value.id;
+		// }
 
-		if (currentTimeline.length > 0) {
-			lastId = currentTimeline[currentTimeline.length - 1].value.id;
+		let client = clientModel.instance.value;
+		if (!client) {
+			console.error('sending tweet but there is no client');
+			return;
 		}
 
 		this.timelineController.timeline.sources.next(
-			clientModel.instance.value!.loadHomeTimeline({ min_id: lastId }).pipe(
+			client.loadHomeTimeline().pipe(
 				tap(() => {
 					this.notifyStream.next({
 						text: 'Timeline Loaded.',
@@ -388,6 +411,39 @@ export default class App extends LitElement {
 				})
 			)
 		);
+	};
+
+	sendCurrentStatus = async () => {
+		let client = clientModel.instance.value;
+		if (!client) {
+			console.error('sending tweet but there is no client');
+			return;
+		}
+		this.notifyStream.next({ text: 'Sending Status...' });
+
+		let promise = client.postStatus({
+			status: this.messageBar.value!.value as string,
+		});
+
+		// TODO: Handle reply
+		// TODO: Undo tweet
+		this.messageBar.value!.reset();
+
+		try {
+			let status = await promise;
+			this.timelineController.timeline.sources.next(
+				of({
+					event: 'update',
+					data: status.data,
+				})
+			);
+			// TODO: Configurable
+			this.refresh();
+		} catch (e) {
+			console.error('fail to send status', e);
+			this.notifyStream.next({ text: `${e}` });
+			// TODO: Hint about recovering status
+		}
 	};
 }
 

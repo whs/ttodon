@@ -67,7 +67,7 @@ describe('timeline', function () {
 		expect(underTest.timeline.value).not.toStrictEqual(currentValue);
 	});
 
-	test('status.update', async () => {
+	test('update existing value', async () => {
 		source.next({
 			event: 'update',
 			data: fakeStatus(1),
@@ -77,19 +77,25 @@ describe('timeline', function () {
 		let nextValue = firstValueFrom(itemObservable.pipe(skip(1)));
 
 		source.next({
-			event: 'status.update',
+			event: 'update',
 			data: {
 				id: '1',
+				content: '1',
 				updated: true,
 			} as any,
 		});
 
 		expect(itemObservable.value).toEqual({
 			id: '1',
+			content: '1',
 			updated: true,
 		});
 		expect(itemObservable.value).not.toStrictEqual(currentValue);
-		return expect(nextValue).resolves.toEqual({ id: '1', updated: true });
+		return expect(nextValue).resolves.toEqual({
+			id: '1',
+			content: '1',
+			updated: true,
+		});
 	});
 
 	describe('delete', () => {

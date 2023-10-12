@@ -91,22 +91,21 @@ export class Timeline {
 						continue;
 					}
 
-					freeze(item);
-					draft.push(new BehaviorSubject(item));
+					// We could store a map...
+					let index = findLastIndex(
+						accumulator,
+						(needle) => needle.value.id === item.id
+					);
+					if (index === -1) {
+						// New item
+						freeze(item);
+						draft.push(new BehaviorSubject(item));
+					} else {
+						// Existing item
+						freeze(item);
+						draft[index].next(item);
+					}
 				}
-			} else if (isEventType(e, 'status.update')) {
-				let data = e.data;
-				let index = findLastIndex(
-					accumulator,
-					(needle) => needle.value.id === data.id
-				);
-				if (index === -1) {
-					return;
-				}
-
-				// Update the status at that index
-				freeze(data);
-				draft[index].next(data);
 			} else if (isEventType(e, 'delete')) {
 				let statusId = e.data;
 				let [removed, rest] = partition(

@@ -143,6 +143,18 @@ export interface PreviewCard {
 	blurhash: string | null;
 }
 
+export interface CreateStatusRequest {
+	status?: string;
+	media_ids?: string[];
+	// poll?: any
+	in_reply_to_id?: string;
+	sensitive?: boolean;
+	spoiler_text?: string;
+	visibility?: 'public' | 'unlisted' | 'private' | 'direct';
+	language?: string;
+	scheduled_at?: string;
+}
+
 export interface MastodonApplication {
 	name: string;
 	website?: string | null;
@@ -181,7 +193,6 @@ export interface StreamEvent {
 export interface StreamEventMap {
 	update: MastodonStatus;
 	delete: string;
-	'status.update': MastodonStatus;
 }
 
 export interface ParsedStreamEvent<
