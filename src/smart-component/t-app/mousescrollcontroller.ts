@@ -36,6 +36,7 @@ export default class MouseScrollController implements ReactiveController {
 				this.host.timelineController.currentTimeline.length - 1
 			);
 		} else if (this.cumulativeDelta < 0) {
+			// TODO: Don't use the default scrolling animation! See moveScroll function
 			this.cumulativeDelta = this.cumulativeDelta % 40;
 			this.host.selectedItem = Math.max(0, this.host.selectedItem - 1);
 		}

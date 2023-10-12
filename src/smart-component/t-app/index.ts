@@ -22,6 +22,7 @@ import { catchError, EMPTY, Subject, tap } from 'rxjs';
 import MouseScrollController from './mousescrollcontroller';
 import { Notification, notificationStreamContext } from '../../model/notify';
 import { provide } from '@lit/context';
+import KeyboardController from './keyboardcontroller.ts';
 
 /**
  * Main UI
@@ -59,6 +60,7 @@ export default class App extends LitElement {
 
 	timelineController = new TimelineController(this);
 	mouseScrollController = new MouseScrollController(this);
+	keyboardController = new KeyboardController(this);
 
 	@provide({ context: notificationStreamContext })
 	@property({ attribute: false })
@@ -75,6 +77,7 @@ export default class App extends LitElement {
 	constructor() {
 		super();
 		this.loadClientState();
+		this.setupHotkeys();
 
 		let state = this.getLoginState();
 
@@ -131,6 +134,7 @@ export default class App extends LitElement {
 					<strong>${__APP_NAME__}</strong> [Version ${__APP_VERSION__}]
 				</div>
 				${guard([this.timelineController.currentTimeline], () =>
+					// TODO: Timeline batch insertion animation
 					repeat(
 						this.timelineController.currentTimeline,
 						(item) => item.value.id,
@@ -206,6 +210,120 @@ export default class App extends LitElement {
 		}
 
 		return LoginState.NO_USER;
+	}
+
+	protected setupHotkeys() {
+		// TODO: Make this customizable
+		this.keyboardController.registerHotkey('Home', 'scrollTop');
+		this.keyboardController.registerHotkey('End', 'scrollBottom');
+		this.keyboardController.registerHotkey('Enter', 'send');
+		this.keyboardController.registerHotkey('ArrowUp', 'scrollUp');
+		this.keyboardController.registerHotkey('ctrl+ArrowUp', 'alwaysScrollUp');
+		this.keyboardController.registerHotkey('shift+ArrowUp', 'previousMention');
+		this.keyboardController.registerHotkey(
+			'ctrl+shift+ArrowUp',
+			'alwaysPreviousMention'
+		);
+		this.keyboardController.registerHotkey('ArrowDown', 'scrollDown');
+		this.keyboardController.registerHotkey(
+			'ctrl+ArrowDown',
+			'alwaysScrollDown'
+		);
+		this.keyboardController.registerHotkey('shift+ArrowDown', 'nextMention');
+		this.keyboardController.registerHotkey(
+			'ctrl+shift+ArrowDown',
+			'alwaysNextMention'
+		);
+		this.keyboardController.registerHotkey('PageUp', 'pageUp');
+		this.keyboardController.registerHotkey('PageDown', 'pageDown');
+		this.keyboardController.registerHotkey('ctrl+KeyR', 'refresh');
+		this.keyboardController.registerHotkey('ctrl+KeyE', 'favorite');
+		this.keyboardController.registerHotkey('ctrl+KeyT', 'repeat');
+		this.keyboardController.registerHotkey('ctrl+KeyY', 'reply');
+		// TODO
+		// this.keyboardController.registerHotkey('ctrl+alt+KeyY', 'unreply');
+		this.keyboardController.registerHotkey('ctrl+KeyF', 'findPrevious');
+		this.keyboardController.registerHotkey('ctrl+KeyG', 'findNext');
+
+		// Ported from keyDown function
+		this.keyboardController.registerAction('scrollTop', (e) => {
+			e.preventDefault();
+			this.selectedItem = 0;
+		});
+		this.keyboardController.registerAction('scrollBottom', (e) => {
+			e.preventDefault();
+			this.selectedItem = this.timelineController.currentTimeline.length - 1;
+		});
+		this.keyboardController.registerAction('send', (e) => {
+			e.preventDefault();
+			this.notifyStream.next({ text: 'TODO: Post toot' });
+		});
+		this.keyboardController.registerAction('refresh', (e) => {
+			e.preventDefault();
+			this.refresh();
+		});
+
+		// Arrow keys
+		const scrollUp = () => {
+			this.selectedItem = Math.max(0, this.selectedItem! - 1);
+		};
+		const scrollDown = () => {
+			this.selectedItem = Math.min(
+				this.selectedItem! + 1,
+				this.timelineController.currentTimeline.length - 1
+			);
+		};
+		this.keyboardController.registerAction('scrollUp', (e) => {
+			// TODO: Don't use the default scrolling animation! See moveScroll function
+			if (this.messageBar.value?.value.length || 0 > 0) {
+				// Mutate the input box first if ctrl is not held
+				return;
+			}
+			e.preventDefault();
+			scrollUp();
+		});
+		this.keyboardController.registerAction('alwaysScrollUp', (e) => {
+			// TODO: Don't use the default scrolling animation! See moveScroll function
+			e.preventDefault();
+			scrollUp();
+		});
+		this.keyboardController.registerAction('previousMention', (e) => {
+			// TODO: Shift = find previous mention
+		});
+		this.keyboardController.registerAction('alwaysPreviousMention', (e) => {
+			// TODO: Shift = find previous mention
+		});
+		this.keyboardController.registerAction('scrollDown', (e) => {
+			// TODO: Don't use the default scrolling animation! See moveScroll function
+			if (this.messageBar.value?.value.length || 0 > 0) {
+				// Mutate the input box first if ctrl is not held
+				return;
+			}
+			e.preventDefault();
+			scrollDown();
+		});
+		this.keyboardController.registerAction('alwaysScrollDown', (e) => {
+			// TODO: Don't use the default scrolling animation! See moveScroll function
+			e.preventDefault();
+			scrollDown();
+		});
+		this.keyboardController.registerAction('nextMention', (e) => {
+			// TODO: Shift = find next mention
+		});
+		this.keyboardController.registerAction('alwaysNextMention', (e) => {
+			// TODO: Shift = find next mention
+		});
+
+		this.keyboardController.registerAction('pageUp', (e) => {
+			e.preventDefault();
+			this.timelineComponent.value?.movePage(-1);
+		});
+		this.keyboardController.registerAction('pageDown', (e) => {
+			e.preventDefault();
+			this.timelineComponent.value?.movePage(1);
+		});
+
+		// TODO: Hold scroll something with keyUp??
 	}
 
 	protected async redeemCode() {

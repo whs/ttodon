@@ -12,10 +12,7 @@ export default class TNotification extends LitElement {
 			margin-top: 10px;
 			width: fit-content;
 			position: relative;
-			--hide-duration: 3000ms;
-			animation:
-				1s ease-out reveal,
-				1s ease-in var(--hide-duration) remove forwards;
+			animation: 1s ease-out reveal forwards;
 		}
 
 		@keyframes reveal {
@@ -55,12 +52,6 @@ export default class TNotification extends LitElement {
 	}
 
 	render() {
-		if (!this.hide) {
-			this.style.setProperty('animation', '1s ease-out reveal');
-		} else {
-			this.style.setProperty('--hide-duration', `${this.hide}ms`);
-		}
-
 		return html`<slot @slotchange=${this.onSlotChange}></slot>`;
 	}
 
@@ -70,7 +61,13 @@ export default class TNotification extends LitElement {
 	};
 
 	protected onAnimationEnd = (e: AnimationEvent) => {
-		if (e.animationName === 'remove') {
+		if (e.animationName === 'reveal') {
+			if (!!this.hide) {
+				setTimeout(() => {
+					this.style.setProperty('animation', '1s remove ease-in forwards');
+				}, this.hide);
+			}
+		} else if (e.animationName === 'remove') {
 			this.dispatchEvent(new CustomEvent('hide'));
 			if (this.autoRemove) {
 				this.remove();

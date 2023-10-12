@@ -131,6 +131,16 @@ export default class Timeline extends LitElement implements ScrollableHost {
 			return;
 		}
 
+		this.tellParentStatusSelected(index);
+	};
+
+	/**
+	 * Raise an event that we want to change selected status to the value
+	 * If the event is not canceled, then perform the change
+	 * @param index
+	 * @protected
+	 */
+	protected tellParentStatusSelected(index: number) {
 		const event = new CustomEvent('select', {
 			bubbles: true,
 			composed: true,
@@ -141,7 +151,7 @@ export default class Timeline extends LitElement implements ScrollableHost {
 		if (allowDefault) {
 			this.selected = index;
 		}
-	};
+	}
 
 	scrollSelectedIntoView() {
 		if (this.selected === undefined) {
@@ -156,6 +166,27 @@ export default class Timeline extends LitElement implements ScrollableHost {
 		}
 
 		this.scrollController.scrollChildIntoView(selectedNode);
+	}
+
+	movePage(direction: number) {
+		let visible = this.scrollController.getScrollVisibleArea();
+		let target = visible.bottom - visible.top;
+		let current = 0;
+		let last = this.selected || 0;
+		// Get the first status that is just beyond the top edge of the screen
+		for (
+			let i = this.selected!;
+			0 <= i && i < this.statuses.length;
+			i += direction
+		) {
+			current += this.statuses[i].offsetHeight;
+			if (current > target) {
+				break;
+			}
+			last = i;
+		}
+
+		this.tellParentStatusSelected(last);
 	}
 }
 

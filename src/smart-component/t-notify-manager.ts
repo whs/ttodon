@@ -67,7 +67,6 @@ export class NotifyController implements ReactiveController {
 		let processedStream = stream.pipe(
 			scan((accumulator, value) => {
 				accumulator.push(value);
-				console.log(`notify: ${value.text}`);
 				return accumulator;
 			}, [] as Notification[]),
 			subscribeOn(animationFrameScheduler)
